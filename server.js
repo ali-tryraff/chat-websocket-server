@@ -74,9 +74,22 @@ const server = http.createServer((req, res) => {
       clients: clients.size,
       uptime: process.uptime() 
     }));
+  } else if (req.method === 'GET' && req.url === '/') {
+    // Root endpoint - info page
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ 
+      status: 'ok',
+      service: 'Chat WebSocket Server',
+      endpoints: {
+        webhook: 'POST /webhook',
+        health: 'GET /health',
+        websocket: 'wss://' + req.headers.host
+      },
+      clients: clients.size
+    }));
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Not Found' }));
+    res.end(JSON.stringify({ error: 'Not Found', availableEndpoints: ['/health', '/webhook'] }));
   }
 });
 
