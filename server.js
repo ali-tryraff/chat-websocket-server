@@ -67,16 +67,33 @@ const server = http.createServer((req, res) => {
       }
     });
   } else if (req.method === 'GET' && req.url === '/health') {
-    // Health check endpoint
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    // Health check endpoint with CORS
+    const origin = req.headers.origin;
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
     res.end(JSON.stringify({ 
       status: 'ok', 
       clients: clients.size,
       uptime: process.uptime() 
     }));
+  } else if (req.method === 'OPTIONS') {
+    // Handle CORS preflight
+    res.writeHead(200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, x-cometchat-webhook-secret'
+    });
+    res.end();
   } else if (req.method === 'GET' && req.url === '/') {
     // Root endpoint - info page
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
     res.end(JSON.stringify({ 
       status: 'ok',
       service: 'Chat WebSocket Server',
